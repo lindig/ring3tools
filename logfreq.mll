@@ -1,6 +1,7 @@
 
 {
 
+  let sprintf = Printf.sprintf
 
   let this_year = Unix.((time () |> localtime).tm_year+1900)
 
@@ -28,7 +29,9 @@
     |  "Dec" -> 11
     |  x     -> failwith ("not a month: "^x)
 
-  let a2i n = try int_of_string n with _ -> 0
+  let a2i n =
+    try int_of_string n
+    with _ -> failwith (sprintf "not an integer: %s" n)
 
   (** [is_leapyear] is true, if and only if a year is a leap year *)
   let is_leapyear year =
@@ -77,7 +80,7 @@ let month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun"
           | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec"
 let weekday = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun"
 
-let day   = ' ' digit
+let day   =     digit
           | '1' digit
           | '2' digit
           | '3' ['0'-'1']
@@ -90,8 +93,8 @@ let any   = [^'\n']
 
 rule dateline = parse
     (weekday ' ')?
-    (month as month) ' ' (day   as day)  ' '
-    (hour  as hour)  ':' (min   as min)  ':' (sec   as sec) frac?
+    (month as month) ' ' ' '? (day   as day)  ' '
+    (hour  as hour)  ':'      (min   as min)  ':' (sec   as sec) frac?
     ' ' any * '\n'
 
                         { Some  { year  = this_year
@@ -102,7 +105,7 @@ rule dateline = parse
                                 ; sec   = a2i sec
                                 }
                         }
-  | any * '\n'          { dateline lexbuf }
+  | any * '\n'          { dateline lexbuf (* skip line *) }
   | eof                 { None }
 
 {
@@ -140,6 +143,7 @@ rule dateline = parse
       let seconds = elapsed past now in
            seconds >= 60L && lines >= 1000
         || seconds >= 300L
+        || seconds < 0L (* reset *)
     in
       readuntil enough lexbuf
 
