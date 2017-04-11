@@ -23,10 +23,10 @@ install: all
 clean:
 	$(OCB) -clean
 
-%.native:
+%.native: FORCE
 	$(OCB) $@
 
-logfreq.native:
+logfreq.native: FORCE
 	$(OCB) -pkg unix $@
 
-
+FORCE:;
