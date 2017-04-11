@@ -141,7 +141,7 @@ rule dateline = parse
     let rec lexbuf = Lexing.from_channel io in
     let enough past now lines =
       let seconds = elapsed past now in
-           seconds >= 60L && lines >= 1000
+           seconds >= 60L && lines >= n
         || seconds >= 300L
         || seconds < 0L (* reset *)
     in
@@ -150,7 +150,7 @@ rule dateline = parse
   let main () =
     let args = Array.to_list Sys.argv in
     let this = Sys.executable_name in
-    let lines = 500 in
+    let lines = 1000 in
     let a2i n = try int_of_string n with _ -> lines in
       match args with
       | [_]         -> process  lines  stdin; exit 0
